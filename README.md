@@ -1,3 +1,4 @@
+
 # Capstone Phase 5 Group 9
 
 Predicting Customer Churn Risk in Internet Service Subscribers using Machine Learning.
@@ -12,3 +13,5 @@ A CSV dataset containing 36,992 customer records with 23 features.
 
 ## Objectives
 Develop a supervised machine learning model capable of predicting customer churn risk and deploy insights to support retention strategies.
+
+

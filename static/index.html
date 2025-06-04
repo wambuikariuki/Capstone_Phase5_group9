@@ -5,33 +5,34 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       max-width: 800px;
       margin: auto;
+      padding: 20px;
     }
     h2 {
-      color: #2c3e50;
+      color: #007BFF;
     }
     label {
-      font-weight: bold;
       display: block;
       margin-top: 10px;
+      font-weight: bold;
     }
     input {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 5px;
+      padding: 5px;
     }
     button {
-      background-color: #2980b9;
-      color: white;
+      margin-top: 15px;
       padding: 10px 20px;
+      background-color: #28a745;
       border: none;
-      margin-top: 10px;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
     }
     #result {
-      margin-top: 15px;
+      margin-top: 20px;
+      font-size: 18px;
       font-weight: bold;
     }
   </style>
@@ -39,50 +40,61 @@
 <body>
   <h2>Customer Churn Prediction</h2>
   <form id="predictForm">
-    <label>1. Age:</label><input type="number" id="f1">
-    <label>2. Avg Time Spent:</label><input type="number" id="f2">
-    <label>3. Avg Transaction Value:</label><input type="number" id="f3">
-    <label>4. Avg Frequency Login Days:</label><input type="number" id="f4">
-    <label>5. Complaint Status - Solved (1/0):</label><input type="number" id="f5">
-    <label>6. Complaint Status - Unsolved (1/0):</label><input type="number" id="f6">
-    <label>7. Feedback - Poor Product Quality (1/0):</label><input type="number" id="f7">
-    <label>8. Feedback - Poor Website (1/0):</label><input type="number" id="f8">
-    <label>9. Feedback - Too Many Ads (1/0):</label><input type="number" id="f9">
-    <label>10. Region - City (1/0):</label><input type="number" id="f10">
-    <label>11. Region - Town (1/0):</label><input type="number" id="f11">
-    <label>12. Membership - Basic (1/0):</label><input type="number" id="f12">
-    <label>13. Membership - Gold (1/0):</label><input type="number" id="f13">
-    <label>14. Membership - Platinum (1/0):</label><input type="number" id="f14">
-    <label>15. Membership - Premium (1/0):</label><input type="number" id="f15">
-    <label>16. Membership - Silver (1/0):</label><input type="number" id="f16">
-    <label>17. Preferred Offer - With Offers (1/0):</label><input type="number" id="f17">
-    <label>18. Medium of Operation - Desktop (1/0):</label><input type="number" id="f18">
-    <label>19. Medium of Operation - Mobile (1/0):</label><input type="number" id="f19">
-    <label>20. Internet Option - Mobile Data (1/0):</label><input type="number" id="f20">
-    <label>21. Internet Option - Wi-Fi (1/0):</label><input type="number" id="f21">
-    
+    <div id="formFields"></div>
     <button type="submit">Predict</button>
   </form>
-
   <p id="result"></p>
 
   <script>
-    document.getElementById('predictForm').addEventListener('submit', async function(e) {
+    const featureNames = [
+      "age",
+      "avg_time_spent",
+      "avg_transaction_value",
+      "avg_frequency_login_days",
+      "complaint_status_Solved",
+      "complaint_status_Unsolved",
+      "feedback_Poor Product Quality",
+      "feedback_Poor Website",
+      "feedback_Too many ads",
+      "region_category_City",
+      "region_category_Town",
+      "membership_Basic",
+      "membership_Gold",
+      "membership_Platinum",
+      "membership_Premium",
+      "membership_Silver",
+      "preferred_offer_types_With Offers",
+      "medium_of_operation_Desktop",
+      "medium_of_operation_Mobile",
+      "internet_option_Mobile_Data",
+      "internet_option_Wi-Fi"
+    ];
+
+    const formFields = document.getElementById('formFields');
+    featureNames.forEach((name, i) => {
+      formFields.innerHTML += `
+        <label for="f${i}">${i + 1}. ${name.replace(/_/g, ' ')}</label>
+        <input type="number" id="f${i}" required>
+      `;
+    });
+
+    document.getElementById('predictForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const features = [];
-      for (let i = 1; i <= 21; i++) {
-        features.push(parseFloat(document.getElementById('f' + i).value || 0));
-      }
+      const features = featureNames.map((_, i) =>
+        parseFloat(document.getElementById(`f${i}`).value)
+      );
 
       const response = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ features: features })
+        body: JSON.stringify({ features })
       });
 
       const data = await response.json();
-      document.getElementById('result').innerText = 'Prediction: ' + (data.prediction === 1 ? 'Will Churn' : 'Will Not Churn');
+      document.getElementById('result').innerText =
+        'Prediction: ' + (data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn');
     });
   </script>
 </body>
 </html>
+  

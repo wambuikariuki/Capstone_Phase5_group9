@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Churn Predictor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    #result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Customer Churn Prediction</h1>
+  <form id="predictForm">
+    <label for="features">Enter 10 comma-separated features:</label>
+    <input type="text" id="features" placeholder="e.g. 30, 450.0, 1.2, 0, 1, 0, 1, 0.8, 0.2, 1">
+    <button type="submit">Predict</button>
+  </form>
+  <p id="result"></p>
+
+  <script>
+    document.getElementById('predictForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const rawInput = document.getElementById('features').value;
+      const input = rawInput.split(',').map(Number);
+      const response = await fetch('https://capstone-phase5-group9-1.onrender.com/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features: input })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerText =
+        data.prediction === 1 ? "Prediction: ❌ Will Churn" : "Prediction: ✅ Will Not Churn";
+    });
+  </script>
+</body>
+</html>

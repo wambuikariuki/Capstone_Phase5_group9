@@ -3,10 +3,8 @@ import joblib
 import numpy as np
 import os
 
-# Load model
 model = joblib.load('churn_model.pkl')
 
-# Initialize Flask app with static folder
 app = Flask(__name__, static_folder='static')
 
 @app.route('/')

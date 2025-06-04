@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, send_from_directory
 import joblib
 import numpy as np
 import os
@@ -8,46 +8,10 @@ model = joblib.load('churn_model.pkl')
 
 app = Flask(__name__)
 
-# HTML with 21 input fields
-html_form = '''
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Churn Prediction</title>
-</head>
-<body>
-  <h2>Customer Churn Prediction</h2>
-  <form id="predictForm">
-    {% for i in range(21) %}
-      <label>Feature {{ i+1 }}: <input type="number" step="any" name="f{{ i }}"></label><br>
-    {% endfor %}
-    <button type="submit">Predict</button>
-  </form>
-  <p id="result"></p>
-
-  <script>
-    document.getElementById('predictForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const inputs = Array.from(document.querySelectorAll('input')).map(i => parseFloat(i.value) || 0);
-      
-      const response = await fetch('/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ features: inputs })
-      });
-
-      const data = await response.json();
-      document.getElementById('result').innerText = 
-        'Prediction: ' + (data.prediction === 1 ? 'Customer will CHURN' : 'Customer will NOT churn');
-    });
-  </script>
-</body>
-</html>
-'''
-
 @app.route('/')
 def home():
-    return render_template_string(html_form)
+    # Serve the styled HTML file from the "static" folder
+    return send_from_directory('static', 'index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():

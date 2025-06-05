@@ -32,6 +32,7 @@
         </div>
 
         <div class="col-md-4">
+          <label class="form-label">Complaint Status</label>
           <select class="form-select" id="complaint_status">
             <option value="Solved">Solved</option>
             <option value="Unsolved">Unsolved</option>
@@ -39,6 +40,7 @@
         </div>
 
         <div class="col-md-4">
+          <label class="form-label">Feedback</label>
           <select class="form-select" id="feedback">
             <option value="Poor Product Quality">Poor Product Quality</option>
             <option value="Poor Website">Poor Website</option>
@@ -47,6 +49,7 @@
         </div>
 
         <div class="col-md-4">
+          <label class="form-label">Region</label>
           <select class="form-select" id="region_category">
             <option value="City">City</option>
             <option value="Town">Town</option>
@@ -55,6 +58,7 @@
         </div>
 
         <div class="col-md-4">
+          <label class="form-label">Membership Category</label>
           <select class="form-select" id="membership_category">
             <option value="Basic">Basic</option>
             <option value="Silver">Silver</option>
@@ -65,14 +69,11 @@
         </div>
 
         <div class="col-md-4">
+          <label for="joined_through_referral" class="form-label">Joined Through Referral</label>
           <select class="form-select" id="joined_through_referral">
             <option value="Yes">Yes</option>
             <option value="No">No</option>
           </select>
-        </div>
-
-        <div class="col-md-4">
-          <input type="number" class="form-control" id="placeholder" placeholder="Placeholder (any number)" required>
         </div>
       </div>
 
@@ -135,7 +136,7 @@
         document.getElementById('region_category').value,
         document.getElementById('membership_category').value,
         document.getElementById('joined_through_referral').value,
-        document.getElementById('placeholder').value
+        0  // Fixed value to maintain input length consistency
       ];
 
       try {
@@ -164,3 +165,7 @@
 </body>
 </html>
 
+      
+
+ 
+    

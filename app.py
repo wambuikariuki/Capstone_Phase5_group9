@@ -4,7 +4,9 @@ import numpy as np
 import os
 
 app = Flask(__name__)
-model = joblib.load('churn_model.pkl')  # Make sure this file is in the same directory
+
+# Load the saved model
+model = joblib.load('churn_model.pkl')
 
 @app.route('/')
 def home():
@@ -12,27 +14,24 @@ def home():
 
 @app.route('/predict-page')
 def predict_page():
-    return render_template('index.html')  # Main prediction UI
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.get_json(force=True)
-        print("📥 Received features:", data['features'])
-
         features = np.array(data['features']).reshape(1, -1)
 
-        prediction = model.predict(features)
-        print("✅ Prediction result:", prediction)
+        # DEBUG print to logs
+        print("Features received:", features)
 
+        prediction = model.predict(features)
         return jsonify({'prediction': int(prediction[0])})
 
     except Exception as e:
-        print("❌ Prediction failed:", str(e))
-        return jsonify({'error': 'Prediction failed on server'}), 500
+        print("Error during prediction:", str(e))
+        return jsonify({'error': 'Prediction failed'}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
-
-    

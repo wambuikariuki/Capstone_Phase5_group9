@@ -5,13 +5,30 @@
   <title>Welcome | Churn Predictor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #f1f1f1;
+    }
+    .card-dark {
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+    }
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+    }
+    .btn-success:hover {
+      background-color: #218838;
+    }
+  </style>
 </head>
-<body class="bg-light d-flex align-items-center" style="height: 100vh;">
+<body class="d-flex align-items-center" style="height: 100vh;">
   <div class="container text-center">
-    <div class="py-5 px-4 bg-white shadow rounded">
-      <h1 class="display-5 text-primary">📊 Customer Churn Prediction</h1>
+    <div class="py-5 px-4 card-dark shadow rounded">
+      <h1 class="display-5 text-success">📊 Customer Churn Predictor</h1>
       <p class="lead mt-3">
-        Predict whether a customer will churn using behavioral data and an XGBoost-powered machine learning model.
+        Use machine learning to predict customer churn with an accurate, XGBoost-powered model.
       </p>
       <a href="/predict-page" class="btn btn-success btn-lg mt-3">
         🚀 Launch Prediction Tool

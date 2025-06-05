@@ -20,8 +20,15 @@ def predict_page():
 def predict():
     data = request.get_json(force=True)
     features = np.array(data['features']).reshape(1, -1)
-    prediction = model.predict(features)
-    return jsonify({'prediction': int(prediction[0])})
+    prediction = model.predict(features)[0]
+    if hasattr(model, 'predict_proba'):
+        confidence = float(model.predict_proba(features)[0][int(prediction)])
+    else:
+        confidence = None
+    return jsonify({
+        'prediction': int(prediction),
+        'confidence': confidence
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

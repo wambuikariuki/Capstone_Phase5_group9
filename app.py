@@ -64,6 +64,8 @@ def predict():
     try:
         raw = request.json.get('features', [])
         features_array = preprocess_input(raw)
+        print("🧠 Input to model:", features_array)  # <-- Added debug line
+
         if features_array is None:
             return jsonify({'error': 'Invalid input format'}), 400
 

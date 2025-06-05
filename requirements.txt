@@ -1,5 +1,4 @@
 Flask
-scikit-learn
-xgboost
 joblib
 numpy
+gunicorn

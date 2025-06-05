@@ -9,23 +9,22 @@
     <h2 class="text-primary mb-4">Customer Churn Prediction</h2>
 
     <form id="predictForm">
-      <!-- User Inputs -->
       <div class="row">
         <div class="col-md-6 mb-3">
           <label class="form-label">Age</label>
-          <input type="number" class="form-control" id="age" required>
+          <input type="number" class="form-control" id="age" value="45" required>
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Avg Time Spent</label>
-          <input type="number" class="form-control" id="avg_time_spent" required>
+          <input type="number" class="form-control" id="avg_time_spent" value="18" required>
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Avg Transaction Value</label>
-          <input type="number" class="form-control" id="avg_transaction_value" required>
+          <input type="number" class="form-control" id="avg_transaction_value" value="15000" required>
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Login Frequency (days)</label>
-          <input type="number" class="form-control" id="avg_frequency_login_days" required>
+          <input type="number" class="form-control" id="avg_frequency_login_days" value="5" required>
         </div>
         <div class="col-md-6 mb-3">
           <label class="form-label">Complaint Status</label>
@@ -38,7 +37,7 @@
           <label class="form-label">Feedback</label>
           <select class="form-select" id="feedback">
             <option value="Poor Product Quality">Poor Product Quality</option>
-            <option value="Poor Website">Poor Website</option>
+            <option value="Poor Website" selected>Poor Website</option>
             <option value="Too many ads">Too many ads</option>
           </select>
         </div>
@@ -56,7 +55,6 @@
       </div>
     </form>
 
-    <!-- Toast container -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
       <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
         <div class="d-flex">
@@ -71,27 +69,35 @@
 
   <script>
     const buildFeatures = () => {
-      const features = [
-        parseFloat(document.getElementById('age').value),
-        parseFloat(document.getElementById('avg_time_spent').value),
-        parseFloat(document.getElementById('avg_transaction_value').value),
-        parseFloat(document.getElementById('avg_frequency_login_days').value),
-        document.getElementById('complaint_status').value === 'Solved' ? 1 : 0,
-        document.getElementById('complaint_status').value === 'Unsolved' ? 1 : 0,
-        ...['Poor Product Quality', 'Poor Website', 'Too many ads'].map(f =>
-          document.getElementById('feedback').value === f ? 1 : 0
-        ),
+      const age = parseFloat(document.getElementById('age').value);
+      const timeSpent = parseFloat(document.getElementById('avg_time_spent').value);
+      const transValue = parseFloat(document.getElementById('avg_transaction_value').value);
+      const loginDays = parseFloat(document.getElementById('avg_frequency_login_days').value);
+      const complaint = document.getElementById('complaint_status').value;
+      const feedback = document.getElementById('feedback').value;
 
-        // Padding to make sure there are exactly 21 features
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      const features = [
+        age,
+        timeSpent,
+        transValue,
+        loginDays,
+        complaint === 'Solved' ? 1 : 0,
+        complaint === 'Unsolved' ? 1 : 0,
+        ...['Poor Product Quality', 'Poor Website', 'Too many ads'].map(f => feedback === f ? 1 : 0),
+
+        // Dummy values to pad to 21 (replace with real dropdowns later)
+        1, 0, 0, 0, 0,  // membership_Basic, Gold, Platinum, Premium, Silver
+        0, 1,           // medium_of_operation_Mobile
+        1, 0            // internet_option_Mobile_Data
       ];
 
-      console.log("Sending features:", features);
+      console.log("Sent features:", features);
       return features;
     };
 
     document.getElementById('predictForm').addEventListener('submit', async function (e) {
       e.preventDefault();
+
       const submitBtn = document.getElementById('submitBtn');
       const spinner = document.getElementById('spinner');
       const result = document.getElementById('result');
@@ -123,7 +129,3 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-        
-
-      

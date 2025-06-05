@@ -1,34 +1,32 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Customer Churn Prediction</title>
+  <title>Churn Predictor</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="container">
     <h2>Customer Churn Prediction</h2>
+
     <form id="predictForm">
       <label>Age:
         <input type="number" name="age" min="18" max="100" required>
       </label>
+
       <label>Average Time Spent:
         <input type="number" name="avg_time_spent" step="0.1" required>
       </label>
+
       <label>Transaction Value:
         <input type="number" name="avg_transaction_value" step="0.1" required>
       </label>
+
       <label>Frequency Login (days):
         <input type="number" name="avg_frequency_login_days" step="0.1" required>
       </label>
-      <label>Complaint Status:
-        <select name="complaint_status">
-          <option value="Solved">Solved</option>
-          <option value="Unsolved">Unsolved</option>
-        </select>
-      </label>
+
       <label>Feedback Type:
         <select name="feedback">
           <option value="Poor Product Quality">Poor Product Quality</option>
@@ -36,12 +34,21 @@
           <option value="Too many ads">Too many ads</option>
         </select>
       </label>
+
+      <label>Complaint Status:
+        <select name="complaint_status">
+          <option value="Solved">Solved</option>
+          <option value="Unsolved">Unsolved</option>
+        </select>
+      </label>
+
       <label>Region:
         <select name="region">
           <option value="City">City</option>
-          <option value="Town">Town</option>
+          <option value="Rural">Rural</option>
         </select>
       </label>
+
       <label>Membership Tier:
         <select name="membership">
           <option value="Basic">Basic</option>
@@ -51,88 +58,102 @@
           <option value="Platinum">Platinum</option>
         </select>
       </label>
+
       <label>Preferred Offer:
         <select name="preferred_offer">
           <option value="With Offers">With Offers</option>
+          <option value="Without Offers">Without Offers</option>
         </select>
       </label>
+
       <label>Device Used:
         <select name="medium">
           <option value="Desktop">Desktop</option>
           <option value="Mobile">Mobile</option>
         </select>
       </label>
+
       <label>Internet Option:
         <select name="internet">
           <option value="Mobile_Data">Mobile Data</option>
           <option value="Wi-Fi">Wi-Fi</option>
         </select>
       </label>
+
       <button type="submit" id="submitBtn">Predict</button>
-      <div id="spinner" style="display:none;">🔄 Predicting...</div>
+      <div id="spinner" style="display: none;">🔄 Predicting...</div>
     </form>
+
     <div id="result"></div>
   </div>
 
-  <script>
-    const form = document.getElementById('predictForm');
-    const result = document.getElementById('result');
-    const spinner = document.getElementById('spinner');
-    const submitBtn = document.getElementById('submitBtn');
+<script>
+  const form = document.getElementById('predictForm');
+  const spinner = document.getElementById('spinner');
+  const result = document.getElementById('result');
+  const submitBtn = document.getElementById('submitBtn');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      spinner.style.display = 'block';
-      submitBtn.disabled = true;
-      result.innerText = '';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    spinner.style.display = 'block';
+    submitBtn.disabled = true;
+    result.innerText = '';
 
-      const formData = new FormData(form);
-      const features = [];
+    const formData = new FormData(form);
+    const features = [];
 
-      // Add numeric inputs
-      features.push(parseFloat(formData.get('age')));
-      features.push(parseFloat(formData.get('avg_time_spent')));
-      features.push(parseFloat(formData.get('avg_transaction_value')));
-      features.push(parseFloat(formData.get('avg_frequency_login_days')));
+    features.push(
+      parseFloat(formData.get('age')),
+      parseFloat(formData.get('avg_time_spent')),
+      parseFloat(formData.get('avg_transaction_value')),
+      parseFloat(formData.get('avg_frequency_login_days'))
+    );
 
-      // One-hot encode select fields
-      features.push(formData.get('complaint_status') === 'Solved' ? 1 : 0); // Solved
-      features.push(formData.get('complaint_status') === 'Unsolved' ? 1 : 0); // Unsolved
+    // Feedback Type
+    features.push(formData.get('feedback') === 'Poor Product Quality' ? 1 : 0);
+    features.push(formData.get('feedback') === 'Poor Website' ? 1 : 0);
+    features.push(formData.get('feedback') === 'Too many ads' ? 1 : 0);
 
-      features.push(formData.get('feedback') === 'Poor Product Quality' ? 1 : 0);
-      features.push(formData.get('feedback') === 'Poor Website' ? 1 : 0);
-      features.push(formData.get('feedback') === 'Too many ads' ? 1 : 0);
+    // Complaint Status
+    features.push(formData.get('complaint_status') === 'Solved' ? 1 : 0);
+    features.push(formData.get('complaint_status') === 'Unsolved' ? 1 : 0);
 
-      features.push(formData.get('region') === 'City' ? 1 : 0);
-      features.push(formData.get('region') === 'Town' ? 1 : 0);
+    // Region
+    features.push(formData.get('region') === 'City' ? 1 : 0);
+    features.push(formData.get('region') === 'Rural' ? 1 : 0);
 
-      const tiers = ['Basic', 'Gold', 'Platinum', 'Premium', 'Silver'];
-      tiers.forEach(t => features.push(formData.get('membership') === t ? 1 : 0));
+    // Membership
+    const tiers = ['Basic', 'Gold', 'Platinum', 'Premium', 'Silver'];
+    tiers.forEach(t => features.push(formData.get('membership') === t ? 1 : 0));
 
-      features.push(formData.get('preferred_offer') === 'With Offers' ? 1 : 0);
+    // Offers
+    features.push(formData.get('preferred_offer') === 'With Offers' ? 1 : 0);
+    features.push(formData.get('preferred_offer') === 'Without Offers' ? 1 : 0);
 
-      features.push(formData.get('medium') === 'Desktop' ? 1 : 0);
-      features.push(formData.get('medium') === 'Mobile' ? 1 : 0);
+    // Medium
+    features.push(formData.get('medium') === 'Desktop' ? 1 : 0);
+    features.push(formData.get('medium') === 'Mobile' ? 1 : 0);
 
-      features.push(formData.get('internet') === 'Mobile_Data' ? 1 : 0);
-      features.push(formData.get('internet') === 'Wi-Fi' ? 1 : 0);
+    // Internet
+    features.push(formData.get('internet') === 'Mobile_Data' ? 1 : 0);
+    features.push(formData.get('internet') === 'Wi-Fi' ? 1 : 0);
 
-      try {
-        const response = await fetch('/predict', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ features })
-        });
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features })
+      });
 
-        const data = await response.json();
-        result.innerText = data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn';
-      } catch (error) {
-        result.innerText = '❌ Something went wrong!';
-      } finally {
-        spinner.style.display = 'none';
-        submitBtn.disabled = false;
-      }
-    });
-  </script>
+      const data = await response.json();
+      result.innerText = data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn';
+    } catch (err) {
+      result.innerText = '❌ Error occurred while predicting';
+    } finally {
+      spinner.style.display = 'none';
+      submitBtn.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>

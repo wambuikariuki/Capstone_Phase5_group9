@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template
 import joblib
 import numpy as np
 import os
@@ -10,8 +10,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # Serve the styled HTML file from the "static" folder
-    return send_from_directory('static', 'index.html')
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -23,3 +22,5 @@ def predict():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
+
+    

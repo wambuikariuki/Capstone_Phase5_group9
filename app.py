@@ -1,20 +1,25 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 import joblib
 import numpy as np
 import os
 import logging
+import csv
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Load model
+model = joblib.load("churn_model.pkl")
 
 # Setup logging
-logging.basicConfig(
-    filename="prediction_logs.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(message)s"
-)
+LOG_FILE = "prediction_logs.csv"
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(message)s')
+if not os.path.exists(LOG_FILE):
+    with open(LOG_FILE, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["Timestamp", "Prediction", "Confidence", "Features"])
 
-# Load the XGBoost model
-model = joblib.load('churn_model.pkl')
-
-# Manual encoders based on training
+# Mappings matching front-end form exactly
 complaint_map = {"Solved": 1, "Unsolved": 0}
 feedback_map = {
     "Poor Product Quality": 0,
@@ -23,36 +28,27 @@ feedback_map = {
 }
 region_map = {"City": 0, "Town": 1, "Village": 2}
 membership_map = {
-    "Basic": 0,
-    "Silver": 1,
-    "Gold": 2,
-    "Premium": 3,
-    "Platinum": 4
+    "Basic": 0, "Silver": 1, "Gold": 2, "Premium": 3, "Platinum": 4
 }
 referral_map = {"Yes": 1, "No": 0}
-
 
 def preprocess_input(data):
     try:
         processed = [
-            float(data[0]),  # Age
-            float(data[1]),  # Avg Time Spent
-            float(data[2]),  # Avg Transaction Value
-            float(data[3]),  # Avg Login Frequency
+            float(data[0]),  # age
+            float(data[1]),  # avg_time_spent
+            float(data[2]),  # avg_transaction_value
+            float(data[3]),  # avg_login_freq
             complaint_map.get(data[4], 0),
             feedback_map.get(data[5], 0),
             region_map.get(data[6], 0),
             membership_map.get(data[7], 0),
             referral_map.get(data[8], 0),
-            int(data[9])  # Placeholder or dummy value
+            float(data[9])  # dummy value
         ]
         return np.array(processed).reshape(1, -1)
     except Exception as e:
-        logging.error(f"Preprocessing error: {e}")
         return None
-
-
-app = Flask(__name__)
 
 @app.route('/')
 def home():
@@ -66,23 +62,28 @@ def predict_page():
 def predict():
     try:
         raw = request.get_json(force=True).get("features", [])
-        processed = preprocess_input(raw)
+        features_array = preprocess_input(raw)
+        if features_array is None:
+            return jsonify({'error': 'Preprocessing failed'}), 400
 
-        if processed is None:
-            return jsonify({'error': 'Invalid input format'}), 400
+        prediction = int(model.predict(features_array)[0])
+        confidence = float(model.predict_proba(features_array)[0][prediction])
 
-        prediction = model.predict(processed)[0]
-        confidence = float(model.predict_proba(processed)[0][int(prediction)])
-
-        logging.info(f"Prediction: {prediction}, Confidence: {confidence:.4f}, Features: {raw}")
+        log_row = [datetime.now().isoformat(), prediction, f"{confidence:.4f}", str(raw)]
+        with open(LOG_FILE, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(log_row)
 
         return jsonify({
-            'prediction': int(prediction),
+            'prediction': prediction,
             'confidence': confidence
         })
     except Exception as ex:
-        logging.error(f"Prediction failed: {ex}")
-        return jsonify({'error': 'Could not predict'}), 500
+        return jsonify({'error': f'Prediction failed: {str(ex)}'}), 500
+
+@app.route('/download-logs')
+def download_logs():
+    return send_file(LOG_FILE, as_attachment=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

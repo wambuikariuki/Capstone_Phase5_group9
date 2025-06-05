@@ -58,13 +58,18 @@ def home():
 def predict_page():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
+
+
+@app.route('/recent-logs')
+def recent_logs():
     try:
-        raw = request.get_json(force=True).get("features", [])
-        features_array = preprocess_input(raw)
-        if features_array is None:
-            return jsonify({'error': 'Preprocessing failed'}), 400
+        with open(LOG_FILE, 'r') as f:
+            lines = f.readlines()[1:]  # skip header
+            recent = lines[-5:] if len(lines) >= 5 else lines
+            recent_data = [line.strip().split(',') for line in recent]
+        return jsonify(recent_data)
+    except Exception as ex:
+        return jsonify({'error': f'Unable to read logs: {str(ex)}'}), 500, 400
 
         prediction = int(model.predict(features_array)[0])
         confidence = float(model.predict_proba(features_array)[0][prediction])
@@ -88,3 +93,4 @@ def download_logs():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
+

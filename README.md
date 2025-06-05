@@ -105,7 +105,7 @@ A CSV dataset containing 36,992 customer records with 23 features.
   - Loading **spinner**
   - Live **bar chart** (Chart.js)
   - Pre-filled **example buttons** (Will Churn / Will Not Churn)
-- Deployed live on **[Render]([https://render.com](https://capstone-phase5-group9-1.onrender.com/predict-page))** for real-time prediction access
+- Deployed live on **[Render]**([https://render.com](https://capstone-phase5-group9-1.onrender.com/predict-page)**)** for real-time prediction access
 
 
 # Limitations & Future Work

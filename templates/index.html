@@ -1,144 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Churn Predictor</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Customer Churn Prediction</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-  <div class="container">
-    <h2>Customer Churn Prediction</h2>
-
+  <div class="container mt-5">
+    <h2 class="text-primary mb-4">Customer Churn Prediction</h2>
     <form id="predictForm">
-      <label>Age:
-        <input type="number" name="age" min="18" max="100" required>
-      </label>
 
-      <label>Average Time Spent:
-        <input type="number" name="avg_time_spent" step="0.1" required>
-      </label>
+      <h5>📊 User Behavior</h5>
+      <div class="mb-3">
+        <label class="form-label">Age</label>
+        <input type="number" id="age" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Avg Time Spent</label>
+        <input type="number" id="avg_time_spent" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Avg Transaction Value</label>
+        <input type="number" id="avg_transaction_value" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Login Frequency (days)</label>
+        <input type="number" id="avg_frequency_login_days" class="form-control" required>
+      </div>
 
-      <label>Transaction Value:
-        <input type="number" name="avg_transaction_value" step="0.1" required>
-      </label>
+      <h5>❗ Complaint Status</h5>
+      <div class="mb-3">
+        <select id="complaint_status" class="form-select">
+          <option value="Solved">Solved</option>
+          <option value="Unsolved">Unsolved</option>
+        </select>
+      </div>
 
-      <label>Frequency Login (days):
-        <input type="number" name="avg_frequency_login_days" step="0.1" required>
-      </label>
-
-      <label>Feedback Type:
-        <select name="feedback">
+      <h5>💬 Feedback</h5>
+      <div class="mb-3">
+        <select id="feedback" class="form-select">
           <option value="Poor Product Quality">Poor Product Quality</option>
           <option value="Poor Website">Poor Website</option>
           <option value="Too many ads">Too many ads</option>
         </select>
-      </label>
+      </div>
 
-      <label>Complaint Status:
-        <select name="complaint_status">
-          <option value="Solved">Solved</option>
-          <option value="Unsolved">Unsolved</option>
-        </select>
-      </label>
-
-      <label>Region:
-        <select name="region">
+      <h5>🌍 Region Category</h5>
+      <div class="mb-3">
+        <select id="region_category" class="form-select">
           <option value="City">City</option>
-          <option value="Rural">Rural</option>
+          <option value="Town">Town</option>
+          <option value="Village">Village</option>
         </select>
-      </label>
+      </div>
 
-      <label>Membership Tier:
-        <select name="membership">
+      <h5>🏅 Membership Category</h5>
+      <div class="mb-3">
+        <select id="membership_category" class="form-select">
           <option value="Basic">Basic</option>
           <option value="Silver">Silver</option>
           <option value="Gold">Gold</option>
           <option value="Premium">Premium</option>
           <option value="Platinum">Platinum</option>
         </select>
-      </label>
+      </div>
 
-      <label>Preferred Offer:
-        <select name="preferred_offer">
-          <option value="With Offers">With Offers</option>
-          <option value="Without Offers">Without Offers</option>
+      <h5>📢 Referral</h5>
+      <div class="mb-3">
+        <select id="joined_through_referral" class="form-select">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
         </select>
-      </label>
+      </div>
 
-      <label>Device Used:
-        <select name="medium">
-          <option value="Desktop">Desktop</option>
-          <option value="Mobile">Mobile</option>
-        </select>
-      </label>
-
-      <label>Internet Option:
-        <select name="internet">
-          <option value="Mobile_Data">Mobile Data</option>
-          <option value="Wi-Fi">Wi-Fi</option>
-        </select>
-      </label>
-
-      <button type="submit" id="submitBtn">Predict</button>
-      <div id="spinner" style="display: none;">🔄 Predicting...</div>
+      <button type="submit" class="btn btn-success mt-3">Predict</button>
     </form>
 
-    <div id="result"></div>
+    <p id="result" class="mt-4 fw-bold fs-4"></p>
   </div>
 
-<script>
-  const form = document.getElementById('predictForm');
-  const spinner = document.getElementById('spinner');
-  const result = document.getElementById('result');
-  const submitBtn = document.getElementById('submitBtn');
+  <script>
+    const buildFeatures = () => {
+      const age = parseFloat(document.getElementById('age').value);
+      const avg_time_spent = parseFloat(document.getElementById('avg_time_spent').value);
+      const avg_transaction_value = parseFloat(document.getElementById('avg_transaction_value').value);
+      const avg_frequency_login_days = parseFloat(document.getElementById('avg_frequency_login_days').value);
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    spinner.style.display = 'block';
-    submitBtn.disabled = true;
-    result.innerText = '';
+      const complaint_status = document.getElementById('complaint_status').value;
+      const complaint_solved = complaint_status === 'Solved' ? 1 : 0;
+      const complaint_unsolved = complaint_status === 'Unsolved' ? 1 : 0;
 
-    const formData = new FormData(form);
-    const features = [];
+      const feedback = document.getElementById('feedback').value;
+      const feedback_encoding = ['Poor Product Quality', 'Poor Website', 'Too many ads'].map(option => feedback === option ? 1 : 0);
 
-    features.push(
-      parseFloat(formData.get('age')),
-      parseFloat(formData.get('avg_time_spent')),
-      parseFloat(formData.get('avg_transaction_value')),
-      parseFloat(formData.get('avg_frequency_login_days'))
-    );
+      const region = document.getElementById('region_category').value;
+      const region_encoding = ['City', 'Town', 'Village'].map(opt => region === opt ? 1 : 0);
 
-    // Feedback Type
-    features.push(formData.get('feedback') === 'Poor Product Quality' ? 1 : 0);
-    features.push(formData.get('feedback') === 'Poor Website' ? 1 : 0);
-    features.push(formData.get('feedback') === 'Too many ads' ? 1 : 0);
+      const membership = document.getElementById('membership_category').value;
+      const membership_encoding = ['Basic', 'Silver', 'Gold', 'Premium', 'Platinum'].map(opt => membership === opt ? 1 : 0);
 
-    // Complaint Status
-    features.push(formData.get('complaint_status') === 'Solved' ? 1 : 0);
-    features.push(formData.get('complaint_status') === 'Unsolved' ? 1 : 0);
+      const referral = document.getElementById('joined_through_referral').value;
+      const referral_yes = referral === 'Yes' ? 1 : 0;
+      const referral_no = referral === 'No' ? 1 : 0;
 
-    // Region
-    features.push(formData.get('region') === 'City' ? 1 : 0);
-    features.push(formData.get('region') === 'Rural' ? 1 : 0);
+      return [
+        age,
+        avg_time_spent,
+        avg_transaction_value,
+        avg_frequency_login_days,
+        complaint_solved,
+        complaint_unsolved,
+        ...feedback_encoding,
+        ...region_encoding,
+        ...membership_encoding,
+        referral_yes,
+        referral_no
+      ];
+    };
 
-    // Membership
-    const tiers = ['Basic', 'Gold', 'Platinum', 'Premium', 'Silver'];
-    tiers.forEach(t => features.push(formData.get('membership') === t ? 1 : 0));
+    document.getElementById('predictForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const features = buildFeatures();
 
-    // Offers
-    features.push(formData.get('preferred_offer') === 'With Offers' ? 1 : 0);
-    features.push(formData.get('preferred_offer') === 'Without Offers' ? 1 : 0);
-
-    // Medium
-    features.push(formData.get('medium') === 'Desktop' ? 1 : 0);
-    features.push(formData.get('medium') === 'Mobile' ? 1 : 0);
-
-    // Internet
-    features.push(formData.get('internet') === 'Mobile_Data' ? 1 : 0);
-    features.push(formData.get('internet') === 'Wi-Fi' ? 1 : 0);
-
-    try {
       const response = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,14 +128,11 @@
       });
 
       const data = await response.json();
-      result.innerText = data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn';
-    } catch (err) {
-      result.innerText = '❌ Error occurred while predicting';
-    } finally {
-      spinner.style.display = 'none';
-      submitBtn.disabled = false;
-    }
-  });
-</script>
+      document.getElementById('result').innerText =
+        'Prediction: ' + (data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn');
+    });
+  </script>
 </body>
 </html>
+
+   

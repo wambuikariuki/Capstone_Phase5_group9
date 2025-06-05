@@ -96,13 +96,17 @@ A CSV dataset containing 36,992 customer records with 23 features.
 **Best Model**: XGBoost
 **Serialization**: Joblib used to save and load model
 
-<pre><code>```python import joblib 
-  # Save the model joblib.dump(model, 'churn_model.pkl') 
-  # Load the model loaded_model = joblib.load('churn_model.pkl') ``` </code></pre>
+### Web Application
 
-**Web Service**: Served via Flask API
-**Route**: /predict accepts JSON input and returns prediction
-**Testing**: Use Postman or curl to validate endpoints
+- Built using **Flask** and **Bootstrap**
+- `POST /predict` – Accepts JSON input and returns churn prediction with confidence score
+- `GET /download-logs` – Allows CSV download of recent prediction logs
+- Frontend includes:
+  - Loading **spinner**
+  - Live **bar chart** (Chart.js)
+  - Pre-filled **example buttons** (Will Churn / Will Not Churn)
+- Deployed live on **[Render]([https://render.com](https://capstone-phase5-group9-1.onrender.com/predict-page))** for real-time prediction access
+
 
 # Limitations & Future Work
 

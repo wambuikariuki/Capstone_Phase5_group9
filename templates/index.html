@@ -89,7 +89,7 @@
     </div>
 
     <p id="result" class="mt-4 fw-bold fs-4"></p>
-    <div id="sampleResult" class="text-muted"></div>
+    <p id="sampleResult" class="text-muted"></p>
   </div>
 
   <script>
@@ -133,8 +133,8 @@
 
     document.getElementById('predictForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const features = buildFeatures();
 
+      const features = buildFeatures();
       const predictBtn = document.querySelector('button[type="submit"]');
       const spinner = document.getElementById('spinner');
       const result = document.getElementById('result');
@@ -155,7 +155,7 @@
         const data = await response.json();
         result.innerText =
           'Prediction: ' + (data.prediction === 1 ? '🚨 Will Churn' : '✅ Will Not Churn');
-        sample.innerText = 'Sample confidence logic can go here if available (e.g., probability scores).';
+        sample.innerText = `Confidence Score: ${(data.confidence * 100).toFixed(2)}%`;
       } catch (err) {
         result.innerText = '❌ Error: Could not get prediction.';
       } finally {
@@ -166,3 +166,6 @@
   </script>
 </body>
 </html>
+
+    
+    
